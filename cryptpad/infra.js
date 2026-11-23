@@ -1,4 +1,5 @@
-// One node per tier (upstream runs two of each): same app, about half the memory.
+// One node per tier (upstream runs two of each): same app, about half the memory. Internal nodes use
+// 127.0.0.1, not "localhost", which can resolve to ::1 where a container has no IPv6.
 // httpHost "::" listens on IPv4 and IPv6, so the Sandbox service reaches this service over
 // Railway's IPv6 private network. (Upstream's CPAD_MAIN_DOMAIN switch forces 0.0.0.0, IPv4 only,
 // so this template uses its own variable names.)
@@ -13,7 +14,7 @@ module.exports = {
         fileHost: undefined,
         httpServerId: "",
     },
-    front: [{ host: "localhost", port: 3010 }],
-    core: [{ host: "localhost", port: 3020 }],
-    storage: [{ host: "localhost", port: 3030, wsPort: 3040 }],
+    front: [{ host: "127.0.0.1", port: 3010 }],
+    core: [{ host: "127.0.0.1", port: 3020 }],
+    storage: [{ host: "127.0.0.1", port: 3030, wsPort: 3040 }],
 };
