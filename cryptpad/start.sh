@@ -22,6 +22,12 @@ chown -R cryptpad:cryptpad /data
 as_cryptpad() { setpriv --reuid=4001 --regid=4001 --clear-groups env HOME=/cryptpad "$@"; }
 
 decrees=/data/data/decree.ndjson
+# On a fresh volume the storage node writes its bearer secret itself and then never finishes that
+# boot (the HTTP node gives up after 30 s and the server stops). Seed it here, once.
+if ! grep -qs '"SET_BEARER_SECRET"' "$decrees"; then
+  printf '["SET_BEARER_SECRET",["%s"],"INTERNAL",%s000]\n' "$(head -c 32 /dev/urandom | base64 | tr -d '\n')" "$(date +%s)" >> "$decrees"
+  chown cryptpad:cryptpad "$decrees"
+fi
 if ! grep -qs '"ADD_FIRST_ADMIN"\|"ADD_INSTALL_TOKEN"' "$decrees"; then
   token="${CRYPTPAD_INSTALL_TOKEN:-}"
   if [[ "$token" =~ ^[0-9a-f]{64}$ ]]; then
