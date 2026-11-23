@@ -10,11 +10,10 @@ set -euo pipefail
 
 : "${CRYPTPAD_ORIGIN:?CRYPTPAD_ORIGIN is not set (the main https:// address)}"
 : "${CRYPTPAD_SANDBOX_ORIGIN:?CRYPTPAD_SANDBOX_ORIGIN is not set (the Sandbox service https:// address)}"
-case "$CRYPTPAD_ORIGIN$CRYPTPAD_SANDBOX_ORIGIN" in
-  *"https://"*"https://"*) ;;
-  *) echo "railway: both origins must start with https:// (got '$CRYPTPAD_ORIGIN' and '$CRYPTPAD_SANDBOX_ORIGIN')"; exit 1 ;;
-esac
-if [ "${CRYPTPAD_ORIGIN%/}" = "${CRYPTPAD_SANDBOX_ORIGIN%/}" ] || [ "$CRYPTPAD_ORIGIN" = "https://" ] || [ "$CRYPTPAD_SANDBOX_ORIGIN" = "https://" ]; then
+for o in "$CRYPTPAD_ORIGIN" "$CRYPTPAD_SANDBOX_ORIGIN"; do
+  [[ "$o" =~ ^https?://[^/]+[^/:]$ ]] || { echo "railway: '$o' is not a full address such as https://example.up.railway.app (no path, no trailing slash)"; exit 1; }
+done
+if [ "$CRYPTPAD_ORIGIN" = "$CRYPTPAD_SANDBOX_ORIGIN" ]; then
   echo "railway: CRYPTPAD_ORIGIN and CRYPTPAD_SANDBOX_ORIGIN must be two different, non-empty addresses"; exit 1
 fi
 
